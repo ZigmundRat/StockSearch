@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<head>
+  <title>Stock Ticker</title>
+  <style>
+	body {
+		background-image: url("http://cs-server.usc.edu:45678/hw/hw8/images/background.png");
+	}	
+	#title
+	{
+		font-size: 15px;
+	}
+	#myform label, #myform input {
+		display:inline-block;
+	}
+	#myform input {
+		/*width:100%;*/
+	}
+	#invisible{
+		display:none;
+	}
+	#visible
+	{
+		display:block;
+	}
+	
+	#invisible_table{
+		display:none;
+	}
+	#visible_table
+	{
+		display:block;
+	}
+	
+	#invisible_hist
+	{
+		display:block;
+	}
+	#visible_hist
+	{
+		display:block;
+	}
+	
+	li{  
+         cursor:pointer;  
+      }  
+    li:hover  
+    {  
+        background-color:#f9f9f9;  
+     }
+	.box-one {
+	  -webkit-transition:all linear 1s;
+	  transition:all linear 1s;
+	  overflow:hidden;
+	}
+	.box-one.ng-hide {
+	  /*opacity:0;*/
+	   /*transform: scale(0.8); */
+	  transform : translate(-600px,0); 
+	}
+	.box-two {
+	  -webkit-transition:all linear 1s;
+	  transition:all linear 1s;
+	  overflow:hidden;
+	}
+	.box-two.ng-hide {
+	  /*opacity:0;*/
+	   /*transform: scale(0.8); */
+	  transform : translate(600px,0); 
+	}
+	.icon-size{
+		font-size:25px;
+	}
+	.highlight{
+		border: 1px solid red;
+	}
+	
+	.glyphicon-star
+	{
+		color:#ffff00;
+		text-shadow: 0 0 0.5px black;
+	}
+	.errorTxt{
+		color:#ff0000;
+		position: relative;
+		left: 25%;
+	}
+	</style>
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!--<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+  <script src="https://code.highcharts.com/stock/highstock.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.2.2/jquery.form.min.js" integrity="sha384-FzT3vTVGXqf7wRfy8k4BiyzvbNfeYjK+frTVqZeNDFl8woCbF0CYG6g2fMEFFo/i" crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-JAW99MJVpJBGcbzEuXk4Az05s/XyDdBomFqNlM3ic+I=" crossorigin="anonymous"></script>
+  <script type="text/javascript" src="external_js.js"></script>
+  <script src="https://code.highcharts.com/modules/exporting.js"></script>
+  <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
+  <script src="https://code.angularjs.org/1.4.2/angular-animate.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular.min.js"></script>-->
+  
+  <meta charset="utf-8">
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">-->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="https://code.angularjs.org/1.4.2/angular-animate.js"></script>
+  <script type="text/javascript" src="external_js.js"></script>
+  <!--script src="http://code.highcharts.com/highcharts.js"></script-->
+  <script src="https://code.highcharts.com/stock/highstock.js"></script>
+  <script src="https://code.highcharts.com/modules/exporting.js"></script>
+  <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
+  <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.0/css/bootstrap-toggle.min.css" rel="stylesheet">
+  <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.0/js/bootstrap-toggle.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  <script>
+  
+var counter=0;
+  
+var app = angular.module('stockapp', ["ngAnimate"]);
+
+
+app.controller('fetchquote', function ($scope, $http,$rootScope) {
+
+
+$scope.isVisibleChart = false;
+$scope.isVisiblefav = true;
+
+	$scope.change = function() {
+		$http.jsonp("http://cs-server.usc.edu:12825/autoData.php?callback=JSON_CALLBACK&symbol="+$scope.symbol).
+		success(function(data) {
+			$scope.SymbolList=data;
+			var arr = [];
+			//var i=0;
+			for (var symbol in $scope.SymbolList)
+			{
+				arr[symbol] = $scope.SymbolList[symbol]["Symbol"]+" - "+$scope.SymbolList[symbol]["Name"]+"  ("+$scope.SymbolList[symbol]["Exchange"]+")";
+			}
+			$scope.list= arr;
+		}).
+		error(function (data) {
+			$scope.list= [];
+			$scope.list[0] = "Request failed";
+		});
+	  }
+      $scope.complete = function(string){  
+           $scope.hidethis = false;  
+           var output = [];  
+           angular.forEach($scope.list, function(symbol){  
+					output.push(symbol);  
+           });  
+           $scope.filterSymbol = output;  
+      }  
+      $scope.fillTextbox = function(string){  
+           $scope.symbol = string;  
+           $scope.hidethis = true;  
+      }
+});
+
+</script>
+  
+  
+  
+  <script type="text/javascript">
+	$("document").ready(function(){
+		
+		$('#symbol').keyup(function() {
+		if ($.trim($("#symbol").val()) === "") {
+			//alert('you did not fill out one of the fields');
+			 $('#submit_btn').attr('disabled', 'disabled');
+		}
+		else{
+			$('#submit_btn').removeAttr('disabled');
+		}
+		});
+		
+		$('#symbol').focusin(function(element){
+			$('#symbol').removeClass('highlight');
+		});
+		
+		var messages = {
+        'StockRequired': "Please enter a symbol."
+		};
+    $('.form-inline').validate({
+		rules: {
+            symbol: {
+                required: true
+            }
+        },
+        messages: {
+            symbol: messages.StockRequired
+        },
+        onfocusout: function(element) {
+            this.element(element);
+			$('#symbol').addClass('highlight');
+        },
+		errorLabelContainer: '.errorTxt'
+    });
+	  $(".form-inline").submit(function(){
+		
+		selected();
+		var data = {
+		  "action": "test"
+		};
+		
+		//data = $(this).serialize()+ "&" + $.param(data);
+		
+		data= $(this).serialize().substring(0, $(this).serialize().indexOf('%'))+ "&" + $.param(data); 
+		
+		document.getElementById('invisible_table').setAttribute("id","visible_table");
+		$("#progressBar_table").removeClass('hidden');
+		$("#stockDataTable").addClass('hidden');
+		
+		$.ajax({
+		  type: "GET", //Change to GET
+		  dataType: "JSON",
+		  url: "get_quote.php", 
+		  data: data,
+		  success: function(data) {
+			try
+			{						
+				globalData(data);
+				document.getElementById('visible_table').setAttribute("id","invisible_table");
+				$("#progressBar_table").addClass('hidden');
+				//$('#graph').find('br').remove();
+				$("#stockDataTable").removeClass('hidden');
+				
+				$("#stockDataTable").html(
+				  insert_row(data)
+				);
+			}
+			catch(err)
+			{
+				x= document.getElementById("table_error");
+				x.innerHTML+="<div class=\"bs-example\"><div class=\"alert alert-danger fade in\"><strong>Error!</strong> Failed to get data!</div></div>";
+			}
+		  },
+		  error:function(req, status, err){alert('Exception: '+status+err);}
+		});
+		
+		var data_indicators = {
+			"action":"indicators"
+		};
+		data_indicators = $(this).serialize().substring(0, $(this).serialize().indexOf('%'))+ "&" + $.param(data_indicators);
+		document.getElementById('invisible').setAttribute("id","visible");
+		$("#progressBar").removeClass('hidden');
+		$("#container_1").addClass('hidden');
+		
+		//document.getElementById('invisible_hist').setAttribute("id","visible_hist");
+		//$("#progressBar_hist").removeClass('hidden');
+		//$("#container_highstock").addClass('hidden');
+		//progressBar_hist
+		
+		$.ajax({
+		  type: "GET",
+		  dataType: "JSON",
+		  url: "get_quote.php", 
+		  data: data_indicators,
+		  success: function(data) {
+			try{
+				document.getElementById('visible').setAttribute("id","invisible");
+				$("#progressBar").addClass('hidden');
+				$('#graph').find('br').remove();
+				$("#container_1").removeClass('hidden');
+				$('#facebook').removeAttr('disabled');	
+				price_chart(data);
+				useDataOutside(data);
+				
+				//document.getElementById('visible_hist').setAttribute("id","invisible_hist");
+				//$("#progressBar_hist").addClass('hidden');
+				//$("#container_highstock").removeClass('hidden');
+						
+				draw_highStock(data);	
+			}	
+			catch(err)
+			{
+				x= document.getElementById("graph_error");
+				x.innerHTML+="<div class=\"bs-example\"><div class=\"alert alert-danger fade in\"><strong>Error!</strong> Failed to get data!</div></div>";
+			}
+		  },
+		  error:function(req, status, err){alert('Exception: '+status+err);}
+		});
+		
+		return false;
+	  });
+	
+	$('.fb').click(function() {
+    function serialize(obj) {
+        return Object.keys(obj).map(function(p) {
+            return encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]);
+        }).join("&");
+    }
+
+    function postToFacebook(url) {
+    	console.log(chart.options.exporting.url + url);
+        var url = chart.options.exporting.url + url,
+			title = chart.options.title.text;
+        window.open('http://www.facebook.com/sharer.php?u=' + encodeURIComponent(url) + '&t=' +
+        	encodeURIComponent(title), 'sharer', 'toolbar=0,status=0,width=626,height=436');
+    }
+	var chart=$("#container_1").highcharts();
+	//var index=$("#container_1").data('highchartsChart');	
+	//var chart=Highcharts.charts[index];
+		$.ajax({
+			type: 'POST',
+			data: serialize({
+				svg: chart.getSVGForExport(),
+				type: 'image/png',
+				async: true
+			}),
+			url: chart.options.exporting.url,
+			success: postToFacebook,
+			error: function(e) {
+				throw e;
+			}
+		});
+	});	
+});
+
+	function globalData(data)
+	{
+		tableFeed= data;
+	}
+	function draw_highStock(data)
+	{
+		var d=[];
+		/*for(var i=0; i<data["json_price"].length; i++)
+		{
+			d[i]=data["json_price"][i]
+		}*/
+		var i=0;
+		for (var date in data["json_price"])
+		{
+			//console.log(i);
+			d.push([]);
+			var arr= date.split("-");
+			d[i][0]=Date.UTC(arr[0],arr[1], arr[2]);
+			d[i][1]=data["json_price"][date];
+			i++;
+		}
+		
+		d.sort(sortFunction);
+
+		function sortFunction(a, b) {
+			if (a[0] === b[0]) {
+				return 0;
+			}
+			else {
+				return (a[0] < b[0]) ? -1 : 1;
+			}
+		}
+		
+		
+		//var d=Object.entries(data["json_price"])
+		var options= {
+					chart: {
+						height: 500
+					},
+
+					title: {
+						text: data["symbol"]+" Stock Value"
+					},
+					yAxis:
+					{
+						title:{
+						text: 'Stock Vaues'
+						}
+					},
+					subtitle: {
+						text: '<a href="https://www.alphavantage.co/" style="color:#0000FF;"> Source: Alpha Vantage </a>'
+					},
+
+					rangeSelector: {
+						allButtonsEnabled: true,
+						selected: 0,
+						buttons: [{
+								type: 'week',
+								count: 1,
+								text: '1w'
+							},{
+								type: 'month',
+								count: 1,
+								text: '1m'
+							},{
+								type: 'month',
+								count: 3,
+								text: '3m'
+							},{
+								type: 'month',
+								count: 6,
+								text: '6m'
+							},{
+								type: 'year',
+								count: 1,
+								text: '1y'
+							},{
+								type: 'ytd',
+								count: 1,
+								text: 'YTD'
+							},{
+								type: 'all',
+								text: 'All'
+							}]
+						},
+
+					series: [{
+						name: data["symbol"]+" Stock Value",
+						data: d,
+						type: 'area',
+						pointStart: data.pointStart,
+						pointInterval: data.pointInterval,
+						threshold: null,
+						tooltip: {
+							valueDecimals: 2
+						}
+					}],
+
+					responsive: {
+						rules: [{
+							condition: {
+								maxWidth: 500
+							},
+							chartOptions: {
+								chart: {
+									height: 300
+								},
+								subtitle: {
+									text: null
+								},
+								navigator: {
+									enabled: false
+								}
+							}
+						}]
+					}
+		};
+		
+		var chart = Highcharts.stockChart('container_highstock', options);			
+		//var c1= $("#container_highstock").highcharts();	
+	}
+	function useDataOutside(data)
+	{
+		global=data;
+	}
+	
+	function passFunction(type)
+	{
+		data = global;
+		switch(type)
+		{
+			case "STOCH" : draw_chart_stoch(type, data); break;
+			case "MACD": draw_chart_macd(type, data); break;
+			case "BBANDS": draw_chart_bbands(type, data); break;
+			default: draw_chart_indicators(type, data);
+		}
+		
+	}
+	
+	function price_volume()
+	{
+		data = global;
+		price_chart(data);
+	}
+	
+	function insert_row(data)
+	{
+		
+		if(data["tableJSON"]["change"]>0)
+		{
+			str= "<img src=http://cs-server.usc.edu:45678/hw/hw8/images/Up.png height=20px width=20px>";
+			color="#009900"; 
+		}
+		else
+		{
+			str= "<img src=http://cs-server.usc.edu:45678/hw/hw8/images/Down.png height=20px width=20px>";
+			color="#ff0000";
+		}
+		var obj= document.getElementById("stockDataTable");
+		obj.innerHTML="";
+		
+		obj.innerHTML+="<tr><td>Stock Ticker Symbol </td><td>" + data["tableJSON"]["symbol"] + "</td></tr><tr><td>Last Price </td><td>" + data["tableJSON"]["close"] + "</td></tr><tr><td>Change (Change Percent) </td><td style='color:"+color+" ';>"+ data["tableJSON"]["change"]+" ("+data["tableJSON"]["change_percent"]+"%) "+str+" </td></tr><tr><td>Timestamp </td><td>" + data["tableJSON"]["timestamp"] + "</td></tr><tr><td>Open </td><td>" + data["tableJSON"]["open"] + "</td></tr><tr><td>Close </td><td>" + data["tableJSON"]["close"] + "</td></tr><tr><td>Day's Range</td><td>"+data["tableJSON"]["open"]+" - "+data["tableJSON"]["close"] + "</td></tr><tr><td>Volume </td><td>" + data["tableJSON"]["volume"] + "</td></tr>";
+		
+		/*
+		var row = $("<tr />");
+		$("#stockDataTable").append(row); 
+		row.append($("<td>Stock Ticker Symbol </td>"));
+		row.append($("<td>" + data["tableJSON"]["symbol"] + "</td>"));
+	
+		var row1 = $("<tr />");
+		$("#stockDataTable").append(row1); 
+		row1.append($("<td>Last Price </td>"));
+		row1.append($("<td>" + data["tableJSON"]["close"] + "</td>"));
+		
+		var row2 = $("<tr />");
+		$("#stockDataTable").append(row2); 
+		row2.append($("<td>Change (Change Percent) </td>"));
+		row2.append($("<td>" + data["tableJSON"]["change"]+" ("+data["tableJSON"]["change_percent"]+") </td>"));
+		
+		var row3 = $("<tr />");
+		$("#stockDataTable").append(row3); 
+		row3.append($("<td>Timestamp </td>"));
+		row3.append($("<td>" + data["tableJSON"]["timestamp"] + "</td>"));
+		
+		var row4 = $("<tr />");
+		$("#stockDataTable").append(row4); 
+		row4.append($("<td>Open </td>"));
+		row4.append($("<td>" + data["tableJSON"]["open"] + "</td>"));
+		
+		var row5 = $("<tr />");
+		$("#stockDataTable").append(row5); 
+		row5.append($("<td>Close </td>"));
+		row5.append($("<td>" + data["tableJSON"]["close"] + "</td>"));
+		
+		var row7 = $("<tr />");
+		$("#stockDataTable").append(row7); 
+		row7.append($("<td>Day's Range</td>"));
+		row7.append($("<td>"+data["tableJSON"]["open"]+" - "+data["tableJSON"]["close"] + "</td>"));
+		
+		var row6 = $("<tr />");
+		$("#stockDataTable").append(row6); 
+		row6.append($("<td>Volume </td>"));
+		row6.append($("<td>" + data["tableJSON"]["volume"] + "</td>"));	
+		
+		*/
+	}
+	function getNews()
+	{
+			var card = document.getElementById("news");			
+			card.innerHTML="";
+			for (var i=0; i<5; i++)
+			{
+				document.getElementById("news").innerHTML+="<div class=\"well well-lg\"><div class=\"card text-dark border-primary\"><div class=\"card-body\"><h4 class=\"card-title\"><a href="+Object.values(tableFeed["news_feed"]["article_link"][i])+">"+Object.values(tableFeed["news_feed"]["article_title"][i])+"</a></h4><p class=\"card-text\">Author: "+Object.values(tableFeed["news_feed"]["article_author"][i])+"</p><p class=\"card-text\">Date: "+Object.values(tableFeed["news_feed"]["article_date"][i])+"</div></div></div>";
+			}		
+	}	
+	//Stock Details Button
+	function changeAnimate()
+	{
+		var obj = document.getElementById("fav");
+		obj.className+=" box-two";
+		var obj_1 = document.getElementById("stock");
+		obj_1.classList.remove("box-one");
+	}
+	
+	//Favourite Button
+	function changeAnimate_1()
+	{
+		var obj = document.getElementById("stock");
+		obj.className+=" box-one";
+		var obj_1 = document.getElementById("fav");
+		obj_1.classList.remove("box-one");
+		//obj_1.classList.remove("box-two");
+		if(obj_1.className.indexOf("box-two"))
+		{
+			obj_1.classList.remove("box-two");
+		}
+	}
+	
+	function fav()
+	{
+		var star= document.getElementById("star");
+		if(star.classList.contains("glyphicon-star-empty"))
+		{
+			star.classList.remove("glyphicon-star-empty");
+			star.classList.add("glyphicon-star");
+			
+			var input= document.getElementById("symbol").value;
+			var favList= localStorage.getItem("favList");
+			if(favList === null || favList=="" )
+			{
+				localStorage.favList=new Array(input.substring(0,input.indexOf('-')).trim());
+				localStorage.price=new Array(tableFeed["tableJSON"]["close"]);
+				localStorage.volume=new Array(tableFeed["tableJSON"]["volume"]);
+				localStorage.change=new Array(tableFeed["tableJSON"]["change"]);
+				localStorage.changep=new Array(tableFeed["tableJSON"]["change_percent"]);
+			}
+			else{
+				localStorage.favList+=" "+input.substring(0,input.indexOf('-')).trim();
+				localStorage.price+=" "+tableFeed["tableJSON"]["close"]; 
+				localStorage.volume+=" "+tableFeed["tableJSON"]["volume"];
+				localStorage.change+=" "+tableFeed["tableJSON"]["change"];
+				localStorage.changep+=" "+tableFeed["tableJSON"]["change_percent"];
+				//var array = JSON.parse(favList);
+				//array.push(input.substring(0,input.indexOf('-')).trim());
+				//localStorage.favList= JSON.stringify(array);	
+			}
+			updateFav();
+		}
+		else
+		{
+			star.classList.add("glyphicon-star-empty");
+			star.classList.remove("glyphicon-star");
+			
+			var input= document.getElementById("symbol").value;
+			input = input.substring(0,input.indexOf('-')).trim();
+			
+			deleteFav(input);
+			/*var favList= localStorage.getItem("favList");
+			var priceList= localStorage.getItem("price");
+			var volumeList= localStorage.getItem("volume");
+			var changeList= localStorage.getItem("change");
+			var changePList= localStorage.getItem("changep");
+			
+			var list =favList.split(" ");
+			var list_price=priceList.split(" ");
+			var list_volume= volumeList.split(" ");
+			var list_change= changeList.split(" ");
+			var list_changep= changePList.split(" ");
+						
+			var index = list.indexOf(input);
+			if (index > -1) {
+				list.splice(index, 1);
+				list_price.splice(index, 1);
+				list_volume.splice(index, 1);
+				list_change.splice(index, 1);
+				list_changep.splice(index, 1);
+			}
+			localStorage.favList=list.join(" ");
+			localStorage.price= list_price.join(" ");
+			localStorage.volume= list_volume.join(" ");
+			localStorage.change= list_change.join(" ");
+			localStorage.changep= list_changep.join(" ");		*/
+		}
+		
+	}
+	
+	function deleteFav(input)
+	{
+			var favList= localStorage.getItem("favList");
+			var priceList= localStorage.getItem("price");
+			var volumeList= localStorage.getItem("volume");
+			var changeList= localStorage.getItem("change");
+			var changePList= localStorage.getItem("changep");
+			
+			var list =favList.split(" ");
+			var list_price=priceList.split(" ");
+			var list_volume= volumeList.split(" ");
+			var list_change= changeList.split(" ");
+			var list_changep= changePList.split(" ");
+						
+			var index = list.indexOf(input);
+			if (index > -1) {
+				list.splice(index, 1);
+				list_price.splice(index, 1);
+				list_volume.splice(index, 1);
+				list_change.splice(index, 1);
+				list_changep.splice(index, 1);
+			}
+			localStorage.favList=list.join(" ");
+			localStorage.price= list_price.join(" ");
+			localStorage.volume= list_volume.join(" ");
+			localStorage.change= list_change.join(" ");
+			localStorage.changep= list_changep.join(" ");	
+			
+			updateFav();
+	}
+	
+	function updateFav()
+	{
+		var favList= localStorage.getItem("favList");
+		if(favList === null || favList=="" )
+		{
+			var listObj= document.getElementById("favTable");
+			listObj.innerHTML="";
+			return;
+		}
+		var list =favList.split(" ");
+		
+		var price= localStorage.getItem("price");
+		var price_list= price.split(" ");
+		
+		var volume= localStorage.getItem("volume");
+		var volume_list= volume.split(" ");
+		
+		var change= localStorage.getItem("change");
+		var change_list= change.split(" ");
+		
+		var changep= localStorage.getItem("changep");
+		var changep_list= changep.split(" ");
+		
+		var listObj= document.getElementById("favTable");		
+		listObj.innerHTML="";
+		listObj.innerHTML+="<tr><th>Symbol</th><th>Stock Price</th><th>Change(Change Percent)</th><th>Volume</th><th></th></tr>";
+        
+		for(var i=0; i<list.length; i++)
+		{
+			if(change_list[i]>0)
+			{
+				str= "<img src=http://cs-server.usc.edu:45678/hw/hw8/images/Up.png height=20px width=20px>";
+				color="#009900"; 
+			}
+			else
+			{
+				str= "<img src=http://cs-server.usc.edu:45678/hw/hw8/images/Down.png height=20px width=20px>";
+				color="#ff0000";
+			}
+			
+			listObj.innerHTML+="<tr><td><a href=javascript:document.getElementById('myForm').submit();>"+list[i]+"</a></td><td>"+price_list[i]+"</td><td>"+change_list[i]+"("+changep_list[i]+"%) "+str+"</td><td>"+volume_list[i]+"</td><td><button type=\"button\" class=\"btn btn-default\" onClick=\"deleteFav('"+list[i]+"')\"><span class=\"glyphicon glyphicon-trash\"></span></button></td></tr>";
+		}
+		listObj.innerHTML+="</table>";
+	}
+	function convertToNumberArray(array)
+	{
+		for(var i=0; i<array.length; i++) 
+		{ array[i] = +array[i]; } 
+		return array;
+	}
+	function sortBy()
+	{	
+		var selected= document.getElementById("sortBy").value;
+		
+		var favList= localStorage.getItem("favList");
+		var list =favList.split(" ");
+		var list_new= favList.split(" ");
+		
+		var price= localStorage.getItem("price");
+		var price_list= price.split(" ");
+		var price_new= price.split(" ");
+		
+		var volume= localStorage.getItem("volume");
+		var volume_list= volume.split(" ");
+		var volume_new= volume.split(" ");
+		
+		var change= localStorage.getItem("change");
+		var change_list= change.split(" ");
+		var change_new= change.split(" ");
+		
+		var changep= localStorage.getItem("changep");
+		var changep_list= changep.split(" ");
+		var changep_new= changep.split(" ");
+		//alert(selected);
+		price_list= convertToNumberArray(price_list);
+		price_new = convertToNumberArray(price_new);
+		volume_list= convertToNumberArray(volume_list);
+		volume_new=convertToNumberArray(volume_new);
+		change_list=convertToNumberArray(change_list);
+		change_new=convertToNumberArray(change_new);
+		changep_list=convertToNumberArray(changep_list);
+		changep_new=convertToNumberArray(changep_new);
+		
+		if(!selected.localeCompare("Symbol"))
+		{
+			list_new.sort();
+			for (var i =0 ; i< price_list.length; i++)
+			{
+				index= list_new.indexOf(list[i]);
+				price_new[index]=price_list[i]
+				volume_new[index]= volume_list[i];	
+				change_new[index]= change_list[i];
+				changep_new[index]=changep_list[i];
+			}
+		}
+		
+		if(!selected.localeCompare("Price"))
+		{
+			price_new.sort(function(a,b){ return a - b});
+			for (var i =0 ; i< price_list.length; i++)
+			{
+				index= price_new.indexOf(price_list[i]);
+				list_new[index]=list[i]
+				volume_new[index]= volume_list[i];	
+				change_new[index]= change_list[i];
+				changep_new[index]=changep_list[i];
+			}
+		}
+		
+		if(!selected.localeCompare("Change"))
+		{
+			change_new.sort(function(a,b){ return a - b});
+			for (var i =0 ; i< price_list.length; i++)
+			{
+				index= change_new.indexOf(change_list[i]);
+				list_new[index]=list[i]
+				volume_new[index]= volume_list[i];	
+				price_new[index]= price_list[i];
+				changep_new[index]=changep_list[i];
+			}
+		}
+		
+		if(!selected.localeCompare("Change Percent"))
+		{
+			changep_new.sort(function(a,b){ return a - b});
+			for (var i =0 ; i< price_list.length; i++)
+			{
+				index= changep_new.indexOf(changep_list[i]);
+				list_new[index]=list[i]
+				volume_new[index]= volume_list[i];	
+				price_new[index]= price_list[i];
+				change_new[index]=change_list[i];
+			}
+		}
+		
+		if(!selected.localeCompare("Volume"))
+		{
+			volume_new.sort(function(a,b){ return a - b});
+			for (var i =0 ; i< price_list.length; i++)
+			{
+				index= volume_new.indexOf(volume_list[i]);
+				list_new[index]=list[i]
+				changep_new[index]= changep_list[i];	
+				price_new[index]= price_list[i];
+				change_new[index]=change_list[i];
+			}
+		}
+		var selected_order= document.getElementById("orderBy").value;
+		if(!selected_order.localeCompare("Descending"))
+		{
+				list_new.reverse();
+				price_new.reverse();
+				volume_new.reverse();
+				change_new.reverse();
+				changep_new.reverse();
+		}
+		var listObj= document.getElementById("favTable");		
+		listObj.innerHTML="";
+		listObj.innerHTML+="<tr><th>Symbol</th><th>Stock Price</th><th>Change(Change Percent)</th><th>Volume</th><th></th></tr>";
+        
+		for(var i=0; i<list.length; i++)
+		{
+			if(change_new[i]>0)
+			{
+				str= "<img src=http://cs-server.usc.edu:45678/hw/hw8/images/Up.png height=20px width=20px>";
+				color="#009900"; 
+			}
+			else
+			{
+				str= "<img src=http://cs-server.usc.edu:45678/hw/hw8/images/Down.png height=20px width=20px>";
+				color="#ff0000";
+			}
+			listObj.innerHTML+="<tr><td><a href=javascript:document.getElementById('myForm').submit();>"+list_new[i]+"</a></td><td>"+price_new[i]+"</td><td>"+change_new[i]+"("+changep_new[i]+"%) "+str+"</td><td>"+volume_new[i]+"</td><td><button type=\"button\" class=\"btn btn-default\" onClick=\"deleteFav('"+list_new[i]+"')\"><span class=\"glyphicon glyphicon-trash\"></span></button></td></tr>";
+		}
+		listObj.innerHTML+="</table>";
+	}
+	function selected()
+	{
+		//alert("Page is loaded");
+		var star= document.getElementById("star");
+		var favList= localStorage.getItem("favList");
+		if(favList === null || favList=="")
+		{
+			star.classList.add("glyphicon-star-empty");
+			return;
+		}
+		var list =favList.split(" ");
+		var input= document.getElementById("symbol").value;
+		input = input.substring(0,input.indexOf('-')).trim();
+		var index = list.indexOf(input);
+		
+		//var star= document.getElementById("star");
+		
+		if(index > -1){
+			if(star.classList.contains("glyphicon-star-empty"))
+			{
+				star.classList.remove("glyphicon-star-empty");
+			}
+			star.classList.add("glyphicon-star");
+		}
+		else{
+			if(star.classList.contains("glyphicon-star"))
+			{
+				star.classList.remove("glyphicon-star");
+			}
+			star.classList.add("glyphicon-star-empty");
+		}
+	}
+	
+	function clear_function()
+	{
+		var clear=document.getElementById("myForm")
+		clear.reset();
+		
+		//var scope = angular.element(document.getElementById("fav")).scope();
+		//scope.isVisiblefav=true;
+		
+		//var scope = angular.element(document.getElementById("stock")).scope();
+		//scope.isVisibleChart=false;
+		
+		//document.getElementById("left").click();
+		return false;
+	}
+</script>
+</head>
+<body onLoad="updateFav()">
+<div class="container" ng-app='stockapp' ng-controller='fetchquote'>
+	</br></br> </br>
+	<div class="panel panel-default rounded">
+		</br> 
+		<h4 class="text-center"> Stock Market Search </h4>
+		</br> 
+		<form class="form-inline" method="post" id="myForm">
+			<!--div class="form-group row"-->
+			
+			<div class="col-xs-9">
+			   
+			  <label for="example-search-input" class="col-2 col-form-label" id="title">Enter Stock Ticker Symbol: *</label>
+			  <!--div class="col-xs-4"></div-->
+			  <!--div class="col-xs-5"></div-->			  
+			  <input class="form-control" type="search" id="symbol" name="symbol" style="width:70%; margin:auto;" ng-model="symbol" ng-keyup="complete(symbol)" class="form-control" ng-change="change()" placeholder="E.g. AAPL">
+			  <div class="errorTxt"></div>
+			  <ul class="list-group" ng-model="hidethis" ng-hide="hidethis" style="position:absolute;z-index:10; width:67%; left:26%">  
+                  <li class="list-group-item" ng-repeat="symbolData in filterSymbol" ng-click="fillTextbox(symbolData)">{{symbolData}}</li>  
+			  </ul>
+			</div>	
+			
+			<button type="submit" class="btn btn-info" ng-click="isVisibleChart=true; isVisiblefav=false" disabled="disabled" id="submit_btn">
+				Get Quote &nbsp <span class="glyphicon glyphicon-search"></span> 
+			</button>
+			&nbsp &nbsp &nbsp
+			<a href="#" class="btn btn-default" onClick="clear_function()" ng-click="isVisibleChart=false; isVisiblefav=true">
+				Clear &nbsp <span class="glyphicon glyphicon-refresh"></span> 
+			</a>
+			
+		</form>
+		</br> </br> 
+	</div>
+	
+	<hr style="color: white;">
+	<div class="panel panel-default" ng-show="isVisiblefav" style="color:black;" id="fav">
+	<div class="panel-heading">
+		<h4 style="text-align: left; float: left;">Favorite list</h4>
+		<span class="checkbox" style="float: right; position:relative; right: 120px;">
+		Automatic Refresh: <input type="checkbox" data-toggle="toggle">
+		</span>
+		<button style="float: right; position:relative; right: -110px; top:10px; "><i class="glyphicon glyphicon-refresh"></i></button>
+		<button type="button" class="btn btn-default float-right" onClick="changeAnimate_1()" style="position: relative; right:-85%">
+			<span class="glyphicon glyphicon-chevron-right icon-size" ng-click="isVisibleChart=!isVisibleChart; isVisiblefav=!isVisiblefav"></span>
+		</button>
+		
+	</div>	
+	<div class="panel-body" id="list">
+			
+				<div style="float:left;" class="col-xs-6"> 
+					<h4>Sort By:</h4>
+					<select id="sortBy" class="form-control" style="width:70%" onChange="sortBy()">
+						<option value="Default">Default</option>
+						<option value="Symbol">Symbol</option>
+						<option value="Price">Price</option>
+						<option value="Change">Change</option>
+						<option value="Percent">Change Percent</option>
+						<option value="Volume">Volume</option>
+					</select>
+					</br>
+				</div>
+					
+				<div style="float:right;" class="col-xs-6"> 
+					<h4>Order:</h4>
+					<select id="orderBy" class="form-control" style="width:70%;" onChange="sortBy()">
+						<option value="Ascending">Ascending</option>
+						<option value="Descending">Descending</option>
+					</select>
+					</br>
+				</div>
+			<table id="favTable" class="table table-striped" style="border-radius: 4px;">
+			</table>
+	</div>
+	
+	</div>
+	<div class="panel panel-default box-one" ng-show="isVisibleChart" id="stock">
+      <div class="panel-heading"><button type="button" class="btn btn-default" onClick="changeAnimate()" style="float: left;" id="left"><span class="glyphicon glyphicon-chevron-left icon-size" ng-click="isVisibleChart=!isVisibleChart; isVisiblefav=!isVisiblefav"></span></button><h4 class="text-center">Stock Details</h4></div>
+		<div class="panel-body">
+			
+				<ul id="myTabs" class="nav nav-pills" role="tablist" data-tabs="tabs">
+					<li class="active"><a onClick="#" data-toggle="tab" href="#current"><span class="glyphicon glyphicon-dashboard"></span> Current Stock</a></li>
+					<li><a onClick="#" data-toggle="tab" href="#container_highstock"><span class="glyphicon glyphicon-stats"></span> Historical Charts</a></li>
+					<li><a onClick="getNews()" data-toggle="tab" href="#news"><span class="glyphicon glyphicon-link"></span> News Feeds</a></li>
+				</ul>
+			<hr>
+			
+			<div class="tab-content">
+				<div id="current" class="tab-pane fade in active">
+					<div class="col-xs-5" id="table">
+						<h4>Stock Details 
+						
+						<button id="facebook" class="fb" style="float:right;" disabled="disabled"> 
+							<img src="https://cdn4.iconfinder.com/data/icons/icocentre-free-icons/142/f-facebook_256-128.png" height="35px" width="35px"/>
+						</button>
+						
+						<button type="button" class="btn btn-default" onClick="fav()" style="float:right;"><span class="glyphicon icon-size" id="star" ></span></button>
+						
+						</br></br>
+						</h4>
+						<div class="progress" id="invisible_table">
+							<div class="progress-bar progress-bar-striped active hidden" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width:40%" id="progressBar_table"></div>
+						</div>
+						<div class="well">
+							<table id="stockDataTable" class="table table-striped">
+							</table>
+						</div>
+						<div id="table_error">
+						</div>
+					</div>	
+					<div class="col-xs-7" id="graph">
+						<ul id="myTabs" class="nav nav-tabs nav-justified" role="tablist" data-tabs="tabs">
+							<li class="active"><a onClick="price_volume()" href="#price" data-toggle="tab">Price</a></li>
+							<li><a onClick="passFunction('SMA')" href="#sma" data-toggle="tab">SMA</a></li>
+							<li><a onClick="passFunction('EMA')" href="#ema" data-toggle="tab">EMA</a></li>
+							<li><a onClick="passFunction('STOCH')" data-toggle="tab">STOCH</a></li>
+							<li><a onClick="passFunction('RSI')" data-toggle="tab">RSI</a></li>
+							<li><a onClick="passFunction('ADX')" data-toggle="tab">ADX</a></li>
+							<li><a onClick="passFunction('CCI')" data-toggle="tab">CCI</a></li>
+							<li><a onClick="passFunction('BBANDS')" data-toggle="tab">BBANDS</a></li>
+							<li><a onClick="passFunction('MACD')" data-toggle="tab">MACD</a></li>
+						</ul>
+						
+						<div id="graph_error">
+						</div>
+						</br> </br> </br></br> </br>
+						<div class="progress" id="invisible">
+							<div class="progress-bar progress-bar-striped active hidden" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width:40%" id="progressBar"></div>
+						</div>		
+						<div id="container_1" width="400">
+							
+						</div>
+					</div>
+				</div>
+				<div id="container_highstock" class="col-xs-12 tab-pane fade">
+					<div class="progress" id="invisible_hist">
+							<div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width:40%" id="progressBar_hist"></div>
+					</div>
+				</div>		
+				<div id="news" class="col-xs-12 tab-pane fade">
+						
+				</div>
+			</div>			
+		</div>
+	</div>	
+</div>
+</body>
+</html>
