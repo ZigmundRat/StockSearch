@@ -13,7 +13,7 @@
 		display:inline-block;
 	}
 	#myform input {
-		/*width:100%;*/
+		
 	}
 	#invisible{
 		display:none;
@@ -53,8 +53,6 @@
 	  overflow:hidden;
 	}
 	.box-one.ng-hide {
-	  /*opacity:0;*/
-	   /*transform: scale(0.8); */
 	  transform : translate(-600px,0); 
 	}
 	.box-two {
@@ -63,8 +61,6 @@
 	  overflow:hidden;
 	}
 	.box-two.ng-hide {
-	  /*opacity:0;*/
-	   /*transform: scale(0.8); */
 	  transform : translate(600px,0); 
 	}
 	.icon-size{
@@ -88,29 +84,13 @@
   
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!--<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-  <script src="https://code.highcharts.com/stock/highstock.js"></script>
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-  <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.2.2/jquery.form.min.js" integrity="sha384-FzT3vTVGXqf7wRfy8k4BiyzvbNfeYjK+frTVqZeNDFl8woCbF0CYG6g2fMEFFo/i" crossorigin="anonymous"></script>
-  <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-JAW99MJVpJBGcbzEuXk4Az05s/XyDdBomFqNlM3ic+I=" crossorigin="anonymous"></script>
-  <script type="text/javascript" src="external_js.js"></script>
-  <script src="https://code.highcharts.com/modules/exporting.js"></script>
-  <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
-  <script src="https://code.angularjs.org/1.4.2/angular-animate.js"></script>
-  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular.min.js"></script>-->
-  
   <meta charset="utf-8">
-  <!--<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">-->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   <script src="https://code.angularjs.org/1.4.2/angular-animate.js"></script>
   <script type="text/javascript" src="external_js.js"></script>
-  <!--script src="http://code.highcharts.com/highcharts.js"></script-->
   <script src="https://code.highcharts.com/stock/highstock.js"></script>
   <script src="https://code.highcharts.com/modules/exporting.js"></script>
   <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
@@ -119,7 +99,9 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
   <script>
-  
+  /**
+	Angular JS code to implement Auto Complete
+  */
 var counter=0;
   
 var app = angular.module('stockapp', ["ngAnimate"]);
@@ -136,7 +118,6 @@ $scope.isVisiblefav = true;
 		success(function(data) {
 			$scope.SymbolList=data;
 			var arr = [];
-			//var i=0;
 			for (var symbol in $scope.SymbolList)
 			{
 				arr[symbol] = $scope.SymbolList[symbol]["Symbol"]+" - "+$scope.SymbolList[symbol]["Name"]+"  ("+$scope.SymbolList[symbol]["Exchange"]+")";
@@ -167,11 +148,14 @@ $scope.isVisiblefav = true;
   
   
   <script type="text/javascript">
+  
+  
 	$("document").ready(function(){
+				
+		// Form Validations		
 		
 		$('#symbol').keyup(function() {
 		if ($.trim($("#symbol").val()) === "") {
-			//alert('you did not fill out one of the fields');
 			 $('#submit_btn').attr('disabled', 'disabled');
 		}
 		else{
@@ -186,6 +170,8 @@ $scope.isVisiblefav = true;
 		var messages = {
         'StockRequired': "Please enter a symbol."
 		};
+		
+		
     $('.form-inline').validate({
 		rules: {
             symbol: {
@@ -208,7 +194,6 @@ $scope.isVisiblefav = true;
 		  "action": "test"
 		};
 		
-		//data = $(this).serialize()+ "&" + $.param(data);
 		
 		data= $(this).serialize().substring(0, $(this).serialize().indexOf('%'))+ "&" + $.param(data); 
 		
@@ -216,8 +201,10 @@ $scope.isVisiblefav = true;
 		$("#progressBar_table").removeClass('hidden');
 		$("#stockDataTable").addClass('hidden');
 		
+		// AJAX call to get table data
+		
 		$.ajax({
-		  type: "GET", //Change to GET
+		  type: "GET", 
 		  dataType: "JSON",
 		  url: "get_quote.php", 
 		  data: data,
@@ -227,7 +214,6 @@ $scope.isVisiblefav = true;
 				globalData(data);
 				document.getElementById('visible_table').setAttribute("id","invisible_table");
 				$("#progressBar_table").addClass('hidden');
-				//$('#graph').find('br').remove();
 				$("#stockDataTable").removeClass('hidden');
 				
 				$("#stockDataTable").html(
@@ -251,10 +237,7 @@ $scope.isVisiblefav = true;
 		$("#progressBar").removeClass('hidden');
 		$("#container_1").addClass('hidden');
 		
-		//document.getElementById('invisible_hist').setAttribute("id","visible_hist");
-		//$("#progressBar_hist").removeClass('hidden');
-		//$("#container_highstock").addClass('hidden');
-		//progressBar_hist
+		// AJAX call to plot graphs
 		
 		$.ajax({
 		  type: "GET",
@@ -269,12 +252,7 @@ $scope.isVisiblefav = true;
 				$("#container_1").removeClass('hidden');
 				$('#facebook').removeAttr('disabled');	
 				price_chart(data);
-				useDataOutside(data);
-				
-				//document.getElementById('visible_hist').setAttribute("id","invisible_hist");
-				//$("#progressBar_hist").addClass('hidden');
-				//$("#container_highstock").removeClass('hidden');
-						
+				useDataOutside(data);				
 				draw_highStock(data);	
 			}	
 			catch(err)
@@ -288,6 +266,8 @@ $scope.isVisiblefav = true;
 		
 		return false;
 	  });
+	
+	//Share chart to facebook
 	
 	$('.fb').click(function() {
     function serialize(obj) {
@@ -304,8 +284,6 @@ $scope.isVisiblefav = true;
         	encodeURIComponent(title), 'sharer', 'toolbar=0,status=0,width=626,height=436');
     }
 	var chart=$("#container_1").highcharts();
-	//var index=$("#container_1").data('highchartsChart');	
-	//var chart=Highcharts.charts[index];
 		$.ajax({
 			type: 'POST',
 			data: serialize({
@@ -326,17 +304,15 @@ $scope.isVisiblefav = true;
 	{
 		tableFeed= data;
 	}
+	
+	// Function to plot historical graph using High Stocks
+	
 	function draw_highStock(data)
 	{
 		var d=[];
-		/*for(var i=0; i<data["json_price"].length; i++)
-		{
-			d[i]=data["json_price"][i]
-		}*/
 		var i=0;
 		for (var date in data["json_price"])
 		{
-			//console.log(i);
 			d.push([]);
 			var arr= date.split("-");
 			d[i][0]=Date.UTC(arr[0],arr[1], arr[2]);
@@ -355,8 +331,6 @@ $scope.isVisiblefav = true;
 			}
 		}
 		
-		
-		//var d=Object.entries(data["json_price"])
 		var options= {
 					chart: {
 						height: 500
@@ -440,8 +414,7 @@ $scope.isVisiblefav = true;
 					}
 		};
 		
-		var chart = Highcharts.stockChart('container_highstock', options);			
-		//var c1= $("#container_highstock").highcharts();	
+		var chart = Highcharts.stockChart('container_highstock', options);					
 	}
 	function useDataOutside(data)
 	{
@@ -484,49 +457,6 @@ $scope.isVisiblefav = true;
 		obj.innerHTML="";
 		
 		obj.innerHTML+="<tr><td>Stock Ticker Symbol </td><td>" + data["tableJSON"]["symbol"] + "</td></tr><tr><td>Last Price </td><td>" + data["tableJSON"]["close"] + "</td></tr><tr><td>Change (Change Percent) </td><td style='color:"+color+" ';>"+ data["tableJSON"]["change"]+" ("+data["tableJSON"]["change_percent"]+"%) "+str+" </td></tr><tr><td>Timestamp </td><td>" + data["tableJSON"]["timestamp"] + "</td></tr><tr><td>Open </td><td>" + data["tableJSON"]["open"] + "</td></tr><tr><td>Close </td><td>" + data["tableJSON"]["close"] + "</td></tr><tr><td>Day's Range</td><td>"+data["tableJSON"]["open"]+" - "+data["tableJSON"]["close"] + "</td></tr><tr><td>Volume </td><td>" + data["tableJSON"]["volume"] + "</td></tr>";
-		
-		/*
-		var row = $("<tr />");
-		$("#stockDataTable").append(row); 
-		row.append($("<td>Stock Ticker Symbol </td>"));
-		row.append($("<td>" + data["tableJSON"]["symbol"] + "</td>"));
-	
-		var row1 = $("<tr />");
-		$("#stockDataTable").append(row1); 
-		row1.append($("<td>Last Price </td>"));
-		row1.append($("<td>" + data["tableJSON"]["close"] + "</td>"));
-		
-		var row2 = $("<tr />");
-		$("#stockDataTable").append(row2); 
-		row2.append($("<td>Change (Change Percent) </td>"));
-		row2.append($("<td>" + data["tableJSON"]["change"]+" ("+data["tableJSON"]["change_percent"]+") </td>"));
-		
-		var row3 = $("<tr />");
-		$("#stockDataTable").append(row3); 
-		row3.append($("<td>Timestamp </td>"));
-		row3.append($("<td>" + data["tableJSON"]["timestamp"] + "</td>"));
-		
-		var row4 = $("<tr />");
-		$("#stockDataTable").append(row4); 
-		row4.append($("<td>Open </td>"));
-		row4.append($("<td>" + data["tableJSON"]["open"] + "</td>"));
-		
-		var row5 = $("<tr />");
-		$("#stockDataTable").append(row5); 
-		row5.append($("<td>Close </td>"));
-		row5.append($("<td>" + data["tableJSON"]["close"] + "</td>"));
-		
-		var row7 = $("<tr />");
-		$("#stockDataTable").append(row7); 
-		row7.append($("<td>Day's Range</td>"));
-		row7.append($("<td>"+data["tableJSON"]["open"]+" - "+data["tableJSON"]["close"] + "</td>"));
-		
-		var row6 = $("<tr />");
-		$("#stockDataTable").append(row6); 
-		row6.append($("<td>Volume </td>"));
-		row6.append($("<td>" + data["tableJSON"]["volume"] + "</td>"));	
-		
-		*/
 	}
 	function getNews()
 	{
@@ -553,12 +483,13 @@ $scope.isVisiblefav = true;
 		obj.className+=" box-one";
 		var obj_1 = document.getElementById("fav");
 		obj_1.classList.remove("box-one");
-		//obj_1.classList.remove("box-two");
 		if(obj_1.className.indexOf("box-two"))
 		{
 			obj_1.classList.remove("box-two");
 		}
 	}
+	
+	// Favourite mechanism using Local Storage
 	
 	function fav()
 	{
@@ -584,9 +515,6 @@ $scope.isVisiblefav = true;
 				localStorage.volume+=" "+tableFeed["tableJSON"]["volume"];
 				localStorage.change+=" "+tableFeed["tableJSON"]["change"];
 				localStorage.changep+=" "+tableFeed["tableJSON"]["change_percent"];
-				//var array = JSON.parse(favList);
-				//array.push(input.substring(0,input.indexOf('-')).trim());
-				//localStorage.favList= JSON.stringify(array);	
 			}
 			updateFav();
 		}
@@ -599,31 +527,6 @@ $scope.isVisiblefav = true;
 			input = input.substring(0,input.indexOf('-')).trim();
 			
 			deleteFav(input);
-			/*var favList= localStorage.getItem("favList");
-			var priceList= localStorage.getItem("price");
-			var volumeList= localStorage.getItem("volume");
-			var changeList= localStorage.getItem("change");
-			var changePList= localStorage.getItem("changep");
-			
-			var list =favList.split(" ");
-			var list_price=priceList.split(" ");
-			var list_volume= volumeList.split(" ");
-			var list_change= changeList.split(" ");
-			var list_changep= changePList.split(" ");
-						
-			var index = list.indexOf(input);
-			if (index > -1) {
-				list.splice(index, 1);
-				list_price.splice(index, 1);
-				list_volume.splice(index, 1);
-				list_change.splice(index, 1);
-				list_changep.splice(index, 1);
-			}
-			localStorage.favList=list.join(" ");
-			localStorage.price= list_price.join(" ");
-			localStorage.volume= list_volume.join(" ");
-			localStorage.change= list_change.join(" ");
-			localStorage.changep= list_changep.join(" ");		*/
 		}
 		
 	}
@@ -709,6 +612,9 @@ $scope.isVisiblefav = true;
 		{ array[i] = +array[i]; } 
 		return array;
 	}
+	
+	// Sorting favorite list
+	
 	function sortBy()
 	{	
 		var selected= document.getElementById("sortBy").value;
@@ -835,9 +741,11 @@ $scope.isVisiblefav = true;
 		}
 		listObj.innerHTML+="</table>";
 	}
+	
+	// Displaying star as selected if present in Local Storage
+	
 	function selected()
 	{
-		//alert("Page is loaded");
 		var star= document.getElementById("star");
 		var favList= localStorage.getItem("favList");
 		if(favList === null || favList=="")
@@ -849,8 +757,6 @@ $scope.isVisiblefav = true;
 		var input= document.getElementById("symbol").value;
 		input = input.substring(0,input.indexOf('-')).trim();
 		var index = list.indexOf(input);
-		
-		//var star= document.getElementById("star");
 		
 		if(index > -1){
 			if(star.classList.contains("glyphicon-star-empty"))
@@ -868,18 +774,12 @@ $scope.isVisiblefav = true;
 		}
 	}
 	
+	
+	//Clear Button
 	function clear_function()
 	{
 		var clear=document.getElementById("myForm")
 		clear.reset();
-		
-		//var scope = angular.element(document.getElementById("fav")).scope();
-		//scope.isVisiblefav=true;
-		
-		//var scope = angular.element(document.getElementById("stock")).scope();
-		//scope.isVisibleChart=false;
-		
-		//document.getElementById("left").click();
 		return false;
 	}
 </script>
@@ -892,13 +792,11 @@ $scope.isVisiblefav = true;
 		<h4 class="text-center"> Stock Market Search </h4>
 		</br> 
 		<form class="form-inline" method="post" id="myForm">
-			<!--div class="form-group row"-->
+			
 			
 			<div class="col-xs-9">
 			   
 			  <label for="example-search-input" class="col-2 col-form-label" id="title">Enter Stock Ticker Symbol: *</label>
-			  <!--div class="col-xs-4"></div-->
-			  <!--div class="col-xs-5"></div-->			  
 			  <input class="form-control" type="search" id="symbol" name="symbol" style="width:70%; margin:auto;" ng-model="symbol" ng-keyup="complete(symbol)" class="form-control" ng-change="change()" placeholder="E.g. AAPL">
 			  <div class="errorTxt"></div>
 			  <ul class="list-group" ng-model="hidethis" ng-hide="hidethis" style="position:absolute;z-index:10; width:67%; left:26%">  
@@ -922,10 +820,10 @@ $scope.isVisiblefav = true;
 	<div class="panel panel-default" ng-show="isVisiblefav" style="color:black;" id="fav">
 	<div class="panel-heading">
 		<h4 style="text-align: left; float: left;">Favorite list</h4>
-		<span class="checkbox" style="float: right; position:relative; right: 120px;">
+		<!--span class="checkbox" style="float: right; position:relative; right: 120px;">
 		Automatic Refresh: <input type="checkbox" data-toggle="toggle">
 		</span>
-		<button style="float: right; position:relative; right: -110px; top:10px; "><i class="glyphicon glyphicon-refresh"></i></button>
+		<button style="float: right; position:relative; right: -110px; top:10px; "><i class="glyphicon glyphicon-refresh"></i></button-->
 		<button type="button" class="btn btn-default float-right" onClick="changeAnimate_1()" style="position: relative; right:-85%">
 			<span class="glyphicon glyphicon-chevron-right icon-size" ng-click="isVisibleChart=!isVisibleChart; isVisiblefav=!isVisiblefav"></span>
 		</button>
